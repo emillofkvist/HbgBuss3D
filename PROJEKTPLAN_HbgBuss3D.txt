@@ -1,0 +1,191 @@
+================================================================================
+  HBGBUSS3D — KOMPLETT PROJEKTPLAN
+  Helsingborg Busstrafik 3D-visualisering
+  Skapad: 2026-04-19
+================================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. VAD VI BYGGER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+En interaktiv 3D-visualisering av Helsingborgs busstrafik i realtid.
+Portfolio-showcase med cinematisk "levande stad"-estetik.
+
+Visuellt koncept:
+  - Mörk karta med Helsingborgs riktiga 3D-byggnader (extruderade från OSM-data)
+  - Bussrutter visas som glödande neon-tuber som svävar ovanför gatunivå
+  - Bussar i realtid visas som lysande guldgula partiklar längs rutterna
+  - Hållplatser visas som pulserande cyan-ljuspelare (höjd = trafiktäthet)
+  - Kameran roterar långsamt automatiskt, stannar vid interaktion
+  - Klicka på en rutt för att se linjeinformation i overlay
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. API-NYCKLAR (SPARA DESSA SÄKERT, LÄGG EJ PÅ GITHUB)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+MapTiler (karta + 3D-byggnader)
+  Tjänst:   https://maptiler.com
+  Nyckel:   utFUisRBIvlNzrvT0yOu
+  Plan:     Gratis (100 000 tile-requests/månad)
+  Används:  Mörk kartbakgrund med 3D-byggnadsextrusioner
+
+Trafiklab — GTFS Regional Realtime (realtid)
+  Tjänst:   https://trafiklab.se
+  Nyckel:   251965c1452e4c769eb6b9fa7cb1a9ac
+  Plan:     Brons (30 000 anrop/30 dagar)
+  Används:  Live-busspositioner, pollas var 15:e sekund
+
+Trafiklab — GTFS Regional Static data (rutter/hållplatser)
+  Tjänst:   https://trafiklab.se
+  Nyckel:   e797dfcbe5bb4c78afe79403d6110979
+  Plan:     Brons (50 anrop/30 dagar — cachas 23h i webbläsaren)
+  Används:  Ruttlinjer, hållplatspositioner, linjenamn för Skånetrafiken
+
+Dessa tre nycklar ska in i filen .env.local i projektroten (se avsnitt 5).
+OBS: .env.local ska ALDRIG laddas upp till GitHub.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. TEKNIKSTACK
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  React 19 + Vite 8      — Frontend-ramverk och byggverktyg
+  deck.gl 9              — GPU-accelererade 3D-kartlager (Uber/Vis.gl)
+  MapLibre GL            — Open source kartmotor (OpenGL-baserad)
+  react-map-gl           — React-wrapper för MapLibre
+  gtfs-realtime-bindings — Parsar Protobuf-data från Trafiklab
+  JSZip                  — Packar upp GTFS-static ZIP-filer i webbläsaren
+
+deck.gl-lager som används:
+  PathLayer     — Bussrutter som 3D-linjer (3 lager per rutt = glow-effekt)
+  ScatterplotLayer — Bussar (realtid + animerade demo-bussar + trail)
+  ColumnLayer   — Hållplatser som cylindrar
+
+Node.js krävs: https://nodejs.org (LTS-versionen rekommenderas)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. PROJEKTMAPP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Ska ligga på: C:\Users\Emil Löfkvist\Claude\HbgBuss3D\
+
+Det är ett eget projekt, SEPARAT från Flygpriser.
+Öppna det i Claude Code Desktop som ett eget projekt.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. MAPPSTRUKTUR (så här ska det se ut när det är klart)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+HbgBuss3D\
+  ├── .env.local              ← SKAPAR DU MANUELLT (se avsnitt 6)
+  ├── .gitignore
+  ├── index.html
+  ├── package.json
+  ├── vite.config.js
+  ├── start.bat               ← Dubbelklicka för att starta appen (Windows)
+  ├── start.sh                ← Starta på Linux
+  ├── start.command           ← Starta på Mac
+  ├── public\
+  │   └── favicon.svg
+  └── src\
+      ├── main.jsx
+      ├── App.jsx
+      ├── index.css
+      ├── api\
+      │   └── trafiklab.js    ← Hämtar GTFS-RT + Static från Trafiklab
+      ├── components\
+      │   ├── Map3D.jsx       ← Huvud-canvas med alla deck.gl-lager
+      │   └── InfoOverlay.jsx ← Legend + live-status i övre vänstra hörnet
+      ├── data\
+      │   ├── routes.js       ← Demo-rutter (ersätts av riktiga GTFS-rutter)
+      │   └── stops.js        ← Demo-hållplatser (ersätts av riktiga)
+      ├── hooks\
+      │   ├── useBusAnimation.js    ← Animerar demo-bussar längs rutter
+      │   ├── useVehiclePositions.js← Pollar Trafiklab RT var 15s
+      │   └── useStaticGTFS.js      ← Laddar riktiga rutter/hållplatser (cachat)
+      └── utils\
+          └── pathUtils.js    ← Interpolerar position längs en polyline
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+6. KOM IGÅNG — STEG FÖR STEG
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STEG 1 — Skapa projektmappen
+  Öppna Claude Code Desktop → New Project → välj/skapa mappen:
+  C:\Users\Emil Löfkvist\Claude\HbgBuss3D
+
+STEG 2 — Starta en ny chatt I DEN MAPPEN
+  Skriv: "Bygg HbgBuss3D enligt projektplanen" och bifoga denna fil.
+  Claude skapar då alla filer direkt i rätt mapp.
+
+STEG 3 — Skapa .env.local
+  Skapa en ny fil som heter EXAKT ".env.local" i projektmappen.
+  Innehåll (kopiera exakt):
+
+    VITE_MAPTILER_KEY=utFUisRBIvlNzrvT0yOu
+    VITE_TRAFIKLAB_KEY=251965c1452e4c769eb6b9fa7cb1a9ac
+    VITE_TRAFIKLAB_STATIC_KEY=e797dfcbe5bb4c78afe79403d6110979
+
+STEG 4 — Starta appen
+  Dubbelklicka på start.bat  (startar servern + öppnar webbläsaren)
+  Eller i terminal: npm run dev
+
+STEG 5 — Öppna appen
+  Webbläsaren öppnas automatiskt på: http://localhost:5173
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+7. HUR APPEN FUNGERAR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Vid start:
+  1. Kartan laddas med Helsingborg i centrum, 3D-byggnader extruderas
+  2. Demo-bussar börjar animeras direkt (vita prickar längs rutterna)
+  3. Trafiklab Static laddas i bakgrunden → riktiga rutter och hållplatser
+  4. Trafiklab RT pollas → riktiga bussar visas som guldgula prickar
+  5. Status-badge i övre vänstra hörnet visar "X bussar live"
+
+Interaktion:
+  - Dra musen: rotera/panorera kartan (autorotation pausas)
+  - Scroll: zooma in/ut
+  - Klicka på en rutt: linjeinformation visas i overlay
+  - Klicka "Avmarkera": stänger overlay
+
+Data-flöde:
+  - GTFS Static (rutter/hållplatser): hämtas EN gång, cachas 23 timmar
+  - GTFS-RT (busspositioner): hämtas var 15:e sekund
+  - Vite-proxy i dev-läge hanterar CORS mot Trafiklab
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+8. VIKTIGA NOTERINGAR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+- .env.local ska ALDRIG committas till GitHub (finns i .gitignore)
+- API-nycklarna ovan läcktes kort i git-historiken på flygpriser-repot.
+  Överväg att regenerera dem om projektet ska göras publikt.
+- GTFS Static-nyckeln har bara 50 anrop/30 dagar — spara på dem.
+  Appen cachar resultatet i 23h automatiskt.
+- Appen fungerar utan API-nycklar (demo-läge med animerade bussar).
+- node_modules/ och dist/ ska aldrig committas till GitHub.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+9. NÄSTA STEG (framtida förbättringar)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  [ ] Tidslider — skrubba fram/tillbaka i tid på en dag
+  [ ] Linjefilter — visa/dölj enskilda busslinjer
+  [ ] Statistik-panel — antal bussar, täckning, trafiktoppar
+  [ ] Mobilanpassning — touch-stöd och responsiv layout
+  [ ] Deploy till Vercel/Netlify — publik URL utan lokal server
+  [ ] Backend-proxy — för produktionsmiljö (CORS mot Trafiklab)
+
+
+================================================================================
+  SLUT PÅ DOKUMENTET
+================================================================================

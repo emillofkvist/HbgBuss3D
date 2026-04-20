@@ -1,0 +1,23 @@
+# Beroenden
+node_modules/
+
+# Miljövariabler med API-nycklar — pushas ALDRIG
+.env.local
+.env*.local
+
+# Genererade filer (körs via scripts/preprocess-gtfs.mjs)
+public/helsingborg-routes.json
+
+# GTFS-cache (stor fil, genereras automatiskt)
+node_modules/.gtfs-cache/
+
+# Byggutdata
+dist/
+
+# Editor
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
