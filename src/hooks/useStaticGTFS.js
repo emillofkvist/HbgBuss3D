@@ -7,7 +7,7 @@ export function useStaticGTFS() {
   useEffect(() => {
     let mounted = true;
 
-    fetch('/helsingborg-routes.json')
+    fetch(`${import.meta.env.BASE_URL}helsingborg-routes.json`)
       .then(res => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
