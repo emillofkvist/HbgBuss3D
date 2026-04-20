@@ -27,10 +27,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
 
       - name: Installera beroenden
-        run: npm ci
+        run: npm install
 
       - name: Generera GTFS-data för Helsingborg
         env:
