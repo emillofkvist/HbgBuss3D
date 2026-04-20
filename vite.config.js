@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+  base: '/HbgBuss3D/',
   optimizeDeps: {
     include: ['maplibre-gl', 'deck.gl', '@deck.gl/react', '@deck.gl/layers'],
   },

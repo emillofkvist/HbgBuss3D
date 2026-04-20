@@ -1,0 +1,55 @@
+name: Deploy till GitHub Pages
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Installera beroenden
+        run: npm ci
+
+      - name: Generera GTFS-data för Helsingborg
+        env:
+          VITE_TRAFIKLAB_STATIC_KEY: ${{ secrets.VITE_TRAFIKLAB_STATIC_KEY }}
+        run: node scripts/preprocess-gtfs.mjs
+
+      - name: Bygg appen
+        env:
+          VITE_MAPTILER_KEY: ${{ secrets.VITE_MAPTILER_KEY }}
+          VITE_TRAFIKLAB_KEY: ${{ secrets.VITE_TRAFIKLAB_KEY }}
+          VITE_TRAFIKLAB_STATIC_KEY: ${{ secrets.VITE_TRAFIKLAB_STATIC_KEY }}
+        run: npm run build
+
+      - uses: actions/configure-pages@v4
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      - name: Driftsätt till GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

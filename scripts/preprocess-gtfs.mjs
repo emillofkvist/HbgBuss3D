@@ -12,16 +12,16 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// ─── Läs API-nyckel från .env.local ──────────────────────────────────────────
+// ─── Läs API-nyckel från .env.local eller process.env (CI) ──────────────────
 function readEnv() {
+  const env = { ...process.env };
   const envPath = path.join(__dirname, '..', '.env.local');
-  if (!existsSync(envPath)) throw new Error('.env.local saknas');
-  const lines = readFileSync(envPath, 'utf8').split('\n');
-  const env = {};
-  lines.forEach(l => {
-    const [k, v] = l.split('=');
-    if (k && v) env[k.trim()] = v.trim();
-  });
+  if (existsSync(envPath)) {
+    readFileSync(envPath, 'utf8').split('\n').forEach(l => {
+      const idx = l.indexOf('=');
+      if (idx > 0) env[l.slice(0, idx).trim()] = l.slice(idx + 1).trim();
+    });
+  }
   return env;
 }
 
